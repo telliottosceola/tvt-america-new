@@ -18,5 +18,5 @@ void setup() {
 void loop() {
     elevator.scan();
     elevator.evalFob();
+    elevator.serialCtrl();
 }
-
