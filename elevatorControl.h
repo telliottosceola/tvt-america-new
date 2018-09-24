@@ -25,15 +25,18 @@ class Elevator{
         
         bool gates, gateOne, gateTwo, gateThree;
 
-        bool firstMag, secondMag, thridMag;
+        bool firstMag, secondMag, thirdMag;
         
         bool threeFloorSystem;
         bool interLockEnabled;
         
+        // New variables added
+        bool fromThird, fromFirst;
+        
         int previousPosition;
         int movingTo;       //0-Stop, 1-Moving to Floor 1, 2-Moving to Floor 2, 3-Moving to Floor 3 
         int previousFloor;   //1-Floor 1, 2-Floor 2, 3-Floor 3
-        void evalJumpers();
+        //void evalJumpers();
         
         //Fob variables
         bool left, right, center, top, bottom;
@@ -54,6 +57,8 @@ class Elevator{
         
     public:
         int floorPosition;
+        int previousMillis1 = 0;
+        int light = 0;
         bool moving;
         bool goToFloor(int position);
         bool stop();
@@ -61,4 +66,5 @@ class Elevator{
         void evalJumpers();
         void evalFob();
         void init();
+        void serialCtrl();
 };
