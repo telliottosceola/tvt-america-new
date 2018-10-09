@@ -57,18 +57,27 @@ bool Elevator::goToFloor(int position){
                 }
             }
             cont:
+            delay(20);   // Had to add this for it to receive the whole message, used to only receive "(". 
+            // I thought this was strange becuase the other switch cases 2 and 3 dont need the delay.
+            // Maybe something to do with the runConfirmTimeout or startTime?
+            // Minimum delay amount is around 10.
             moving = true;
             dataLen = Serial1.available();
             char responseData[dataLen+1];
             for(int i = 0; i < dataLen; i++){
                 responseData[i] = Serial1.read();
             }
+            responseData[dataLen] = '\0';  // I had to add this in order for it to not print 8 more uneccesary characters
+            // it seems the String() function wasnt finding the end, i think this did the trick.
+            // after adding this i got the below statement to finally output "is true".
             responseString = String(responseData);
             Serial.print("Response str: ");
             Serial.println(responseString);
             if(!responseString.equalsIgnoreCase(forwardConfirm)){
+                Serial.print("is false");
                 return false;
             }else{
+                Serial.print("is true");
                 return true;
             }
         }
@@ -111,7 +120,10 @@ bool Elevator::goToFloor(int position){
             for(int i = 0; i < dataLen; i++){
                 responseData1[i] = Serial1.read();
             }
+            responseData1[dataLen] = '\0';
             responseString = String(responseData1);
+            Serial.print("Response str: ");
+            Serial.println(responseString);
             if(direction == 1){
                 if(!responseString.equalsIgnoreCase(reverseConfirm)){
                     return false;
@@ -152,6 +164,7 @@ bool Elevator::goToFloor(int position){
             for(int i = 0; i < dataLen; i++){
                 responseData2[i] = Serial1.read();
             }
+            responseData2[dataLen] = '\0';
             responseString = String(responseData2);
             Serial.print("Response str: ");
             Serial.println(responseString);
@@ -276,7 +289,6 @@ void Elevator::scan(){
     prevThirdMag = thirdMag;
 }
 
-//Check these
 void Elevator::evalJumpers(){
     // Floor Mode
   threeFloorSystem = digitalRead(A6);
@@ -321,8 +333,8 @@ void Elevator::evalFob(){
     }
     prevCenter = center;
     
-    if(bottom != prevBottom){
-        if(bottom == HIGH){
+    if(bottom != prevBottom || blelight == true){
+        if(bottom == HIGH || blelight == true){
         if(light % 2 == 0){
             relayController.turnOnRelay(4);
             Serial.println("Light ON");
@@ -331,6 +343,7 @@ void Elevator::evalFob(){
             Serial.println("Light OFF");
         }
         light++;
+        blelight = false;
         }
     }
     prevBottom = bottom;
@@ -367,21 +380,31 @@ bool Elevator::stop(){
             retries++;
             goto retry;
         }else{
-            return false;
+            goto cont4;
         }
     }
+    cont4:
     dataLen = Serial1.available();
-    char responseData[dataLen+1];
+    char responseData4[dataLen+1];
     for(int i = 0; i < dataLen; i++){
-        responseData[i] = Serial1.read();
+        responseData4[i] = Serial1.read();
     }
-    responseString = String(responseData);
+    responseData4[dataLen] = '\0';
+    responseString = String(responseData4);
+    Serial.print("Response str: ");
+    Serial.println(responseString);
     if(!responseString.equalsIgnoreCase(stopConfirm)){
         return false;
     }
     
     return true;
 }
+
+void Elevator::serialFlush(){
+    while(Serial1.available() > 0) {
+        char t = Serial1.read();
+    }
+}   
 
 void Elevator::serialCtrl(){
     int input = 0;
@@ -400,5 +423,44 @@ void Elevator::serialCtrl(){
                 Serial.println("Interlocks Disabled");
             }
         }
+        if(input == 's'){
+            serialFlush();
+        }
+        if(input == 'b'){
+            Serial.println(bleinput);
+        }
     }
+}
+
+void Elevator::bleCtrl(){
+    if(bleinput[0] != 0){
+        if(bleinput[0] == '1'){
+            if(bleinput[1] == '1'){
+                goToFloor(1);
+            }
+            if(bleinput[1] == '2'){
+                goToFloor(2);
+            }
+            if(bleinput[1] == '3'){
+                goToFloor(3);
+            }
+            if(bleinput[1] == '4'){
+                stop();
+            }
+            if(bleinput[1] == '5'){
+                blelight = true;
+            }
+        }
+        /*
+        for(int i = 0; i < 15; i++){
+            char tempchar = bleinput[i];
+            Serial.print(tempchar);
+        }
+        */
+        Serial.println();
+        for(int i = 0; i < 15; i++){
+            bleinput[i] = 0;
+        }
+    }
+    
 }
