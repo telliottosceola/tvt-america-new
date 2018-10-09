@@ -3,6 +3,9 @@
 #include "spark_wiring_usartserial.h"
 #include <NCD4Relay.h>
 
+#ifndef ELEVATORCONTROL_H
+#define ELEVATORCONTROL_H
+
 #define Left A0
 #define Bottom A1
 #define Right D2
@@ -14,6 +17,8 @@
 #define firstmagPin A2      
 #define secondmagPin A4
 #define thirdmagPin D7
+
+extern char bleinput[15];
 
 class Elevator{
     private:
@@ -39,7 +44,7 @@ class Elevator{
         //void evalJumpers();
         
         //Fob variables
-        bool left, right, center, top, bottom;
+        bool left, right, center, top, bottom, blelight = false;;
         bool prevLeft, prevRight, prevCenter, prevTop, prevBottom;
         
         String forwardConfirm = "(1)82";
@@ -66,5 +71,9 @@ class Elevator{
         void evalJumpers();
         void evalFob();
         void init();
+        void serialFlush();
         void serialCtrl();
+        void bleCtrl();
 };
+
+#endif
