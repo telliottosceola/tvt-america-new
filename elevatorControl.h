@@ -19,6 +19,8 @@
 #define thirdmagPin D7
 
 extern char bleinput[15];
+extern char bleoutput[15];
+extern bool sendBLE;
 
 class Elevator{
     private:
