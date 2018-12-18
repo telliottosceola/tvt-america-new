@@ -56,8 +56,8 @@ class Elevator{
         unsigned long runConfirmTimeout = 10;
         int runRetries = 10;
         
-        char forwardStr[10] = "(10600)48";
-        char reverseStr[10] = "(20600)49";
+        char forwardStr[10] = "(10800)4:";
+        char reverseStr[10] = "(20800)4;";
         char stopStr[6] = "(3)84";
         char deaccelStr[12] = "(4040010)::";     //(4040015):?        (4040020):;         (4040010)::     (4040025);0
         char accelStr[12] = "(4030030):;";
